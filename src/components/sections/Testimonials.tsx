@@ -30,7 +30,7 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
 
         <div className="mt-xl grid gap-lg md:grid-cols-2">
           {list.map((t, i) => (
-            <Reveal key={t.quote.slice(0, 24)} delay={(i % 2) * 80} as="article">
+            <Reveal key={`${t.order}-${t.name}`} delay={(i % 2) * 80} as="article">
               <figure className="card flex h-full flex-col p-lg md:p-xl">
                 <blockquote className="text-body pretty text-ink-soft">“{t.quote}”</blockquote>
                 <figcaption className="mt-lg flex items-center gap-sm border-t border-hairline-soft pt-lg">

@@ -14,7 +14,7 @@ export function Publications({ publications }: { publications: Publication[] }) 
         <SectionHeader
           eyebrow="Research"
           title="Four papers, accepted at IEEE conferences."
-          note="Each one is a system I helped build, written up and presented. Publication is pending for all four."
+          note="Each one is a system I helped build, written up and presented."
         />
 
         <div className="mt-xl grid gap-lg lg:grid-cols-2">

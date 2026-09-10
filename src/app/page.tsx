@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Footer } from '@/components/Footer';
 import { Nav } from '@/components/Nav';
 import { About } from '@/components/sections/About';
@@ -13,6 +14,10 @@ import { Blog } from '@/components/sections/Blog';
 import { getContent } from '@/lib/content';
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 export default async function HomePage() {
   const content = await getContent();

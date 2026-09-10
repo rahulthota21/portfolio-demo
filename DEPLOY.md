@@ -82,6 +82,7 @@ Vercel redeploys automatically on every push.
    | `NEXT_PUBLIC_SUPABASE_URL` | `https://fnrtcprauxqudxjfdgnc.supabase.co` |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your anon key (the long `eyJ…` string) |
    | `ADMIN_EMAIL` | `rahulthota21@gmail.com` |
+   | `JACKAL_GATE_KEY` | (optional but recommended) a long random string - arms console stealth mode, see below |
    | `NEXT_PUBLIC_FORMSPREE_ENDPOINT` | `https://formspree.io/f/meajqgar` |
    | `NEXT_PUBLIC_SITE_URL` | `https://rahulthota.dev` |
 

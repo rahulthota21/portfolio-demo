@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { BackgroundArt } from '@/components/BackgroundArt';
-import { themeScript } from '@/components/ThemeToggle';
+import { themeScript } from '@/lib/theme';
 import { getContent } from '@/lib/content';
 
 const inter = Inter({
@@ -45,7 +45,6 @@ export async function generateMetadata(): Promise<Metadata> {
       description: meta.description,
       images: [meta.ogImage],
     },
-    alternates: { canonical: url },
     robots: { index: true, follow: true },
   };
 }
@@ -65,6 +64,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* If JS never runs, scroll-reveal content must still be visible. */}
+        <noscript>
+          <style>{'.reveal{opacity:1 !important;transform:none !important}'}</style>
+        </noscript>
       </head>
       <body className="font-sans antialiased">
         <BackgroundArt enabled={artOn} />

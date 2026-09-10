@@ -1,4 +1,4 @@
-import { themeScript } from '@/components/ThemeToggle';
+import { themeScript } from '@/lib/theme';
 
 export const metadata = {
   title: 'Console',
