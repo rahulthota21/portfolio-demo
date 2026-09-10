@@ -89,17 +89,16 @@ export async function middleware(req: NextRequest) {
   const hasGateCookie = safeEqual(req.cookies.get(GATE_COOKIE)?.value ?? '', gateKey);
   const gateOk = stealthArmed && (safeEqual(k, gateKey) || hasGateCookie);
 
-  // Supabase not configured yet.
+  // Supabase not configured on this deployment: nobody can authenticate, so
+  // the console must never render - not even its setup notice on the
+  // dashboard (console pages independently enforce this via requireOwner).
   if (!url || !key) {
-    if (stealthArmed) {
-      // Even the setup notice must not leak the console's existence.
-      if (isLogin && gateOk) {
-        res.cookies.set(GATE_COOKIE, gateKey, gateCookieOptions(req));
-        return noIndex(res);
-      }
-      return ghost404(req);
-    }
-    return res;
+    if (stealthArmed) return ghost404(req);
+    if (isLogin) return noIndex(res); // login page shows its setup notice
+    const to = req.nextUrl.clone();
+    to.pathname = '/jackal/login';
+    to.search = '';
+    return noIndex(NextResponse.redirect(to));
   }
 
   const supabase = createServerClient(url, key, {
