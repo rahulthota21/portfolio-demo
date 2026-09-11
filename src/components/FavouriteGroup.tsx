@@ -64,8 +64,8 @@ export function FavouriteGroup({ section }: { section: FavouriteSection }) {
     <div className="grid gap-md border-b border-hairline-soft py-lg md:grid-cols-[220px_minmax(0,1fr)] md:gap-xl">
       <h3 className="text-title text-ink">{section.title}</h3>
       <ul className={`grid gap-md ${cols}`}>
-        {section.items.map((item) => (
-          <li key={item.title}>
+        {section.items.map((item, i) => (
+          <li key={`${section.id}-${item.title}-${i}`}>
             <Tile item={item} ratio={section.display === 'poster' ? 'poster' : 'portrait'} />
           </li>
         ))}

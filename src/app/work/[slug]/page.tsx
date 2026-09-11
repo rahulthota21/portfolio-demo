@@ -12,7 +12,8 @@ export const revalidate = 60;
 
 export async function generateStaticParams() {
   const { projects } = await getContent();
-  return projects.map((p) => ({ slug: p.slug }));
+  // Only published projects get pre-rendered.
+  return projects.filter((p) => p.published).map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -23,11 +24,30 @@ export async function generateMetadata({
   const { projects } = await getContent();
   const project = projects.find((p) => p.slug === params.slug);
   if (!project) return { title: 'Not found' };
-  return {
-    title: `${project.name} - ${project.subtitle}`,
-    description: project.overview,
-    openGraph: { title: project.name, description: project.overview },
+
+  const path = `/work/${project.slug}`;
+  const title = `${project.name} - ${project.subtitle}`;
+  const description = project.overview;
+
+  // Metadata merges shallowly in Next.js: defining openGraph here replaces
+  // the layout's openGraph wholesale, so every field must be restated or
+  // social shares of case studies lose their preview image entirely.
+  const openGraph: Metadata['openGraph'] = {
+    type: 'article',
+    url: path,
+    title,
+    description,
+    siteName: 'Thota Rahul',
+    images: [{ url: '/og-card.png', width: 1200, height: 630, alt: title }],
   };
+  const twitter: Metadata['twitter'] = {
+    card: 'summary_large_image',
+    title,
+    description,
+    images: ['/og-card.png'],
+  };
+
+  return { title, description, alternates: { canonical: path }, openGraph, twitter };
 }
 
 export default async function ProjectPage({ params }: { params: { slug: string } }) {

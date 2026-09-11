@@ -72,7 +72,24 @@ optional, for scripted maintenance only.
   and `robots.txt` disallows the path.
 - Optional TOTP two-factor on top of the password.
 - Site-wide headers: `nosniff`, `SAMEORIGIN`, strict referrer policy, camera/mic/geo disabled.
-- Uploads capped at 10 MB and filename-sanitised.
+- Uploads capped at 10 MB, MIME-allowlisted (images + PDFs only) and filename-sanitised.
+- Content saves are shape-checked before they touch the database, and every database row is
+  re-checked on read - a malformed value can never take the public site down.
+
+### Console stealth mode
+
+`/jackal` is private, and with stealth mode it stays **invisible**: set `JACKAL_GATE_KEY`
+to a long random string (`openssl rand -hex 24`) in your environment and every `/jackal*`
+page returns a genuine 404 to anyone without the key - no login screen, no hint the
+console exists. Your private bookmark is:
+
+```
+https://rahulthota.dev/jackal/login?k=<JACKAL_GATE_KEY>
+```
+
+That plants a 30-minute httpOnly cookie so refreshes (including the 2FA step) keep working,
+then email + password (+ TOTP, if enrolled) get you in. Signing out lands on the homepage.
+Leave `JACKAL_GATE_KEY` unset to keep the old always-visible login behaviour.
 
 ## 3. Using the console
 
@@ -100,7 +117,8 @@ gh repo create rahulthota21/portfolio --private --source=. --push
 1. **vercel.com → New Project → import the repo.** Framework auto-detects as Next.js.
 2. **Settings → Environment Variables** — add these for Production, Preview and Development:
    `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `ADMIN_EMAIL`,
-   `NEXT_PUBLIC_FORMSPREE_ENDPOINT`, `NEXT_PUBLIC_SITE_URL=https://rahulthota.dev`.
+   `NEXT_PUBLIC_FORMSPREE_ENDPOINT`, `NEXT_PUBLIC_SITE_URL=https://rahulthota.dev`,
+   and (recommended) `JACKAL_GATE_KEY` — see *Console stealth mode* below.
    (`SUPABASE_SERVICE_ROLE_KEY` is optional — leave it out.)
 3. **Settings → Domains → Add `rahulthota.dev`** and `www.rahulthota.dev`.
    At your registrar set:

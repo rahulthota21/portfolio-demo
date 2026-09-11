@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: 'Beyond code',
   description:
     'The films, series, sport and music I keep going back to - and the poster design work I do on the side.',
+  alternates: { canonical: '/beyond-code' },
 };
 
 export default async function BeyondCodePage() {

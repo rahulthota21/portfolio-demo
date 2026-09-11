@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from './Icons';
+import { themeScript } from '@/lib/theme';
 
 export function ThemeToggle({ className = '' }: { className?: string }) {
   const [dark, setDark] = useState(false);
@@ -31,11 +32,13 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       title={dark ? 'Light' : 'Dark'}
       className="grid h-9 w-9 place-items-center rounded-full text-ink transition-colors hover:bg-canvas active:scale-95 dark:hover:bg-canvas"
     >
-      {mounted && dark ? <Moon width={17} height={17} /> : <Sun width={17} height={17} />}
+      {/* Icon shows the state you'll switch TO (sun while dark), so the
+          control always matches its aria-label. */}
+      {mounted && dark ? <Sun width={17} height={17} /> : <Moon width={17} height={17} />}
       <span className={className} />
     </button>
   );
 }
 
-/** Runs before paint so the correct theme is applied with no flash. */
-export const themeScript = `(function(){try{var t=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&false&&m)){document.documentElement.classList.add('dark')}}catch(e){}})();`;
+// Kept for backwards-compatible imports.
+export { themeScript };

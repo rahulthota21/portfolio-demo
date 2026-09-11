@@ -11,6 +11,7 @@ import {
   createSupabaseServerClient,
   supabaseConfigured,
 } from '@/lib/supabase/server';
+import { validateSection } from '@/lib/validate';
 
 export type ActionResult = { ok: boolean; message: string };
 
@@ -48,6 +49,11 @@ function revalidateSite() {
 /** Save one top-level content key (hero, projects, personal, …). */
 export async function saveSection(key: keyof SiteContent, value: unknown): Promise<ActionResult> {
   try {
+    // Shape check before anything is written - a malformed save can never
+    // reach the database and break the public site.
+    const shapeError = validateSection(key, value);
+    if (shapeError) return { ok: false, message: `Not saved - ${shapeError}` };
+
     const db = await getWriter();
     const { error } = await db
       .from('content')
@@ -89,21 +95,37 @@ export async function resetSection(key: keyof SiteContent): Promise<ActionResult
 export async function signOutAction() {
   const supabase = createSupabaseServerClient();
   await supabase.auth.signOut();
-  redirect('/jackal/login');
+  // Landing on home rather than the login page - in stealth mode the login
+  // path 404s without the gate key, and there is no reason to announce it.
+  redirect('/');
 }
 
-/** Upload an image/PDF to the public `media` bucket and return its URL. */
+/** Only these buckets folders are writable, and only these file types are allowed. */
+const UPLOAD_FOLDERS = new Set(['posters', 'designs', 'gallery', 'diagrams', 'papers', 'resume', 'uploads']);
+const ALLOWED_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/avif',
+  'image/gif',
+  'application/pdf',
+]);
+
 export async function uploadMedia(formData: FormData): Promise<ActionResult & { url?: string }> {
   try {
     const db = await getWriter();
 
     const file = formData.get('file');
-    const folder = (formData.get('folder') as string) || 'uploads';
+    const requested = (formData.get('folder') as string) || 'uploads';
+    const folder = UPLOAD_FOLDERS.has(requested) ? requested : 'uploads';
     if (!(file instanceof File) || file.size === 0) {
       return { ok: false, message: 'No file selected.' };
     }
     if (file.size > 10 * 1024 * 1024) {
       return { ok: false, message: 'File is larger than 10 MB.' };
+    }
+    if (file.type && !ALLOWED_TYPES.has(file.type)) {
+      return { ok: false, message: 'Only images (JPG, PNG, WebP, AVIF, GIF) and PDFs are allowed.' };
     }
 
     const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '-').toLowerCase();

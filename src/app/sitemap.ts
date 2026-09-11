@@ -22,5 +22,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-  return [...staticRoutes, ...projectRoutes];
+  const writingRoutes = content.blog
+    .filter((p) => p.published)
+    .map((p) => ({
+      url: `${base}/writing/${p.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
+
+  return [...staticRoutes, ...projectRoutes, ...writingRoutes];
 }

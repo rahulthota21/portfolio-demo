@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache';
 import { seed } from '@/data/seed';
 import type { SiteContent } from '@/data/types';
 import { createSupabasePublicClient, supabaseConfigured } from './supabase/server';
+import { isValidSection } from './validate';
 
 export const CONTENT_TAG = 'site-content';
 
@@ -19,9 +20,16 @@ async function fetchFromSupabase(): Promise<SiteContent> {
   }
 
   // Merge over the seed so a missing row can never blank out a section.
+  // Rows failing their shape check are skipped (and logged) so one corrupt
+  // value can never take public pages down - the seed value survives.
   const merged: Record<string, unknown> = { ...seed };
   for (const row of data) {
-    if (row.value !== null && row.value !== undefined) merged[row.key] = row.value;
+    if (row.value === null || row.value === undefined) continue;
+    if (!isValidSection(row.key, row.value)) {
+      console.warn(`[content] row "${row.key}" failed its shape check - using seed value instead.`);
+      continue;
+    }
+    merged[row.key] = row.value;
   }
   return merged as unknown as SiteContent;
 }
